@@ -1,0 +1,1 @@
+#reads bmp image metadata 
