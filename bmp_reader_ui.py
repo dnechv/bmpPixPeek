@@ -63,8 +63,99 @@ def open_bmp_image():
     bpp_label.config(text=f"Bits per pixel: {metadata['bits_per_pixel']}")
 
 
+def change_size(*_):
+    #check for the image loaded
+    if original_pixels_rgb is None:
+        return 
+    
+    #read the current scale value from the slider and convert to scaling factor 
+    scale = size_scale.get() / 100.0
 
 
+    #get original image dimensions 
+    height = len(original_pixels_rgb)
+    width = len(original_pixels_rgb[0])
+
+    #compute new scaled dimensions
+
+    #calculate new width and height 
+    if scale == 0.0:
+        new_width, new_height = 1, 1
+    else:
+        new_width  = max(1, int(width  * scale))
+        new_height = max(1, int(height * scale))
+    
+    #container to hold new image pixeks 
+    scaled_image_pixels = []
+
+
+    #loop over image height 
+    for y in range(new_height):
+        #list to hold one row of the image 
+        row = []
+
+        #loop over image width
+        for x in range(new_width):
+
+            if scale == 0.0:
+                original_x = 0
+                original_y = 0
+
+
+            else: 
+
+                #map new pixel to original pixel 
+                original_x = min(width-1, int(x/scale))
+                original_y = min(height-1, int(y/scale))
+
+            #get original pixels 
+            pixels = original_pixels_rgb[original_y][original_x]
+
+            #add pixel to the row 
+            row.append(pixels)
+
+        #add finished pixel to the scaled image
+        scaled_image_pixels.append(row)
+    
+
+    #apply current brightness 
+    brightness = brightness_scale.get()/100.0
+    #create new ppm header 
+    header_bytes = f"P6\n{new_width} {new_height}\n255\n".encode("ascii")
+
+
+    #build and display the image 
+
+    #array to hold pixel data 
+    all_rgb_bytes = bytearray()
+
+    #loop through every pixel 
+
+    for row in scaled_image_pixels:
+        for(R,G,B) in row:
+            r = min(255, int(R * brightness))
+            g = min(255, int(G * brightness))
+            b = min(255, int(B * brightness))
+            all_rgb_bytes.extend((r, g, b)) 
+    
+    #show the image 
+    all_bytes = header_bytes + all_rgb_bytes
+    photo = tk.PhotoImage(data=all_bytes, format="PPM")
+    image_label.configure(image=photo)
+    image_label.image = photo
+
+
+
+    
+
+
+
+
+
+
+
+
+#changes image brightness 
 def change_color(*_):
 
 
@@ -73,43 +164,12 @@ def change_color(*_):
     if original_pixels_rgb is None:
         return
     
-    #reads the value from the brightless slider -> scaling factor in the range 0.0 - 1.0
-    factor = brightness_scale.get()/100.0 
-
-    #get height and width of the image from the stored pixel array 
-    h = len(original_pixels_rgb)
-    w = len(original_pixels_rgb[0])
-
-
-    #build PPM image header in bytes for Tkinter
-    header_bytes = f"P6\n{w} {h}\n255\n".encode("ascii")
-
-
-    #holds new pixel data with adjusted brightness 
-    all_rgb_bytes = bytearray()
+    #call change size function 
+    change_size()
     
-    #loop through original pixels 
-    for row in original_pixels_rgb:
-        #adjust the brightness 
-        for (R, G, B) in row:
-            r = min(255, int(R * factor))
-            g = min(255, int(G * factor))
-            b = min(255, int(B * factor))
-
-            #put adjusted pixels in the byte array 
-            all_rgb_bytes.extend((r, g, b))
-
-
-    #combine header data with new pixel data 
-    all_bytes = header_bytes + all_rgb_bytes
-
-
-    #show the image
-
-    photo = tk.PhotoImage(data = all_bytes, format = "PPM")
-    image_label.configure(image = photo)
-    image_label.image = photo
-
+    
+    
+    
 
 
 
@@ -123,6 +183,8 @@ def browse_file():
     filepath = tk.filedialog.askopenfilename()
     file_path_entry.delete(0, tk.END)
     file_path_entry.insert(0, filepath)
+
+    
 
 
 
@@ -165,6 +227,16 @@ brightness_scale = tk.Scale(root, from_=0, to=100, orient="horizontal",
     label="Brightness (%)", command=change_color)
 brightness_scale.set(100)
 brightness_scale.grid(row=7, column=0, columnspan=2, sticky="we")
+
+#size scale
+size_scale = tk.Scale(
+    root, from_= 0, to= 100, orient="horizontal",
+    label = "Size(%)", command = change_size
+)
+size_scale.set(100) #default size 
+size_scale.grid(row =8, column = 0, columnspan =2, sticky ="we")
+
+
 
 
 #end of the UI block 
