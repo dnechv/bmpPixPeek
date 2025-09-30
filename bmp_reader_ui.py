@@ -63,48 +63,51 @@ def open_bmp_image():
     bpp_label.config(text=f"Bits per pixel: {metadata['bits_per_pixel']}")
 
 
-def change_size(*_):
+def redraw_the_image(*_):
     #check for the image loaded
     if original_pixels_rgb is None:
         return 
     
-    #read the current scale value from the slider and convert to scaling factor 
+    #read the scaling value from the UI slider
     scale = size_scale.get() / 100.0
 
+    #extract each pixel 
+    #pixel = pixels[y][x]
+    height = len(original_pixels_rgb) #row y 
+    width = len(original_pixels_rgb[0]) #column x
 
-    #get original image dimensions 
-    height = len(original_pixels_rgb)
-    width = len(original_pixels_rgb[0])
-
-    #compute new scaled dimensions
+    #computing scaled dimensions 
 
     #calculate new width and height 
-    if scale == 0.0:
+    
+    #set 0 slider to 1 - SAFETY
+    if scale == 0.0: #
         new_width, new_height = 1, 1
+
     else:
         new_width  = max(1, int(width  * scale))
         new_height = max(1, int(height * scale))
     
-    #container to hold new image pixeks 
+    #matrix to hold scaled image pixels 
     scaled_image_pixels = []
 
 
     #loop over image height 
     for y in range(new_height):
-        #list to hold one row of the image 
+
+        #list to hold one row of pixels 
         row = []
 
         #loop over image width
         for x in range(new_width):
-
+            
+            #slider set to 0 - use image's first pixel
             if scale == 0.0:
                 original_x = 0
                 original_y = 0
 
-
             else: 
-
-                #map new pixel to original pixel 
+                #map new pixel to original pixel - applying scaling matrix 
                 original_x = min(width-1, int(x/scale))
                 original_y = min(height-1, int(y/scale))
 
@@ -165,7 +168,7 @@ def change_color(*_):
         return
     
     #call change size function 
-    change_size()
+    redraw_the_image()
     
     
     
@@ -231,10 +234,22 @@ brightness_scale.grid(row=7, column=0, columnspan=2, sticky="we")
 #size scale
 size_scale = tk.Scale(
     root, from_= 0, to= 100, orient="horizontal",
-    label = "Size(%)", command = change_size
+    label = "Size(%)", command = redraw_the_image
 )
 size_scale.set(100) #default size 
 size_scale.grid(row =8, column = 0, columnspan =2, sticky ="we")
+
+#rgb toggles 
+red_toggle = tk.BooleanVar(value=True)
+green_toggle = tk.BooleanVar(value=True)
+blue_toggle = tk.BooleanVar(value=True)
+
+rgb_container_frame = tk.Frame(root)
+rgb_container_frame.grid(row=9, column = 0, columnspan = 2, pady=(6,0))
+
+tk.Checkbutton(rgb_container_frame, text = "Red", variable = red_toggle ).pack()
+tk.Checkbutton(rgb_container_frame, text = "Green", variable = green_toggle ).pack()
+tk.Checkbutton(rgb_container_frame, text = "Blue", variable = blue_toggle ).pack()
 
 
 
