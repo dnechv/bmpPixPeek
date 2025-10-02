@@ -51,8 +51,8 @@ def open_bmp_image():
     #save decoded pixels from BMP in the global variable - image data exits between two functions 
     original_pixels_rgb = pixels_rgb
 
-    #call color changing function - also displays the image 
-    change_color()
+    #call redraw the image - changes color of the image inside its code
+    redraw_the_image()
 
 
     #update metadata labels
@@ -70,6 +70,13 @@ def redraw_the_image(*_):
     
     #read the scaling value from the UI slider
     scale = size_scale.get() / 100.0
+
+
+    #to turn off RGB. multiply the channel by 0
+
+    red_channel_multiplier = 1 if red_toggle.get() else 0
+    green_channel_multiplier = 1 if green_toggle.get() else 0
+    blue_channel_multiplier = 1 if blue_toggle.get() else 0
 
     #extract each pixel 
     #pixel = pixels[y][x]
@@ -133,12 +140,11 @@ def redraw_the_image(*_):
     all_rgb_bytes = bytearray()
 
     #loop through every pixel 
-
     for row in scaled_image_pixels:
         for(R,G,B) in row:
-            r = min(255, int(R * brightness))
-            g = min(255, int(G * brightness))
-            b = min(255, int(B * brightness))
+            r = min(255, int(R * brightness)) * red_channel_multiplier
+            g = min(255, int(G * brightness)) * green_channel_multiplier
+            b = min(255, int(B * brightness)) * blue_channel_multiplier
             all_rgb_bytes.extend((r, g, b)) 
     
     #show the image 
@@ -149,34 +155,6 @@ def redraw_the_image(*_):
 
 
 
-    
-
-
-
-
-
-
-
-
-#changes image brightness 
-def change_color(*_):
-
-
-    #check if image is loaded
-
-    if original_pixels_rgb is None:
-        return
-    
-    #call change size function 
-    redraw_the_image()
-    
-    
-    
-    
-
-
-
- 
 
 
 
@@ -191,10 +169,9 @@ def browse_file():
 
 
 
-
+#UI code 
     
     
-
 root = tk.Tk()
 
 tk.Label(root, text="File Path").grid(row=0, column=0)
@@ -227,7 +204,7 @@ bpp_label.grid(row=6, column=0, columnspan=2, sticky="w")
 
 #brigtness slider
 brightness_scale = tk.Scale(root, from_=0, to=100, orient="horizontal",
-    label="Brightness (%)", command=change_color)
+    label="Brightness (%)", command=redraw_the_image)
 brightness_scale.set(100)
 brightness_scale.grid(row=7, column=0, columnspan=2, sticky="we")
 
@@ -247,9 +224,9 @@ blue_toggle = tk.BooleanVar(value=True)
 rgb_container_frame = tk.Frame(root)
 rgb_container_frame.grid(row=9, column = 0, columnspan = 2, pady=(6,0))
 
-tk.Checkbutton(rgb_container_frame, text = "Red", variable = red_toggle ).pack()
-tk.Checkbutton(rgb_container_frame, text = "Green", variable = green_toggle ).pack()
-tk.Checkbutton(rgb_container_frame, text = "Blue", variable = blue_toggle ).pack()
+tk.Checkbutton(rgb_container_frame, text = "Red", variable = red_toggle, command = redraw_the_image).pack()
+tk.Checkbutton(rgb_container_frame, text = "Green", variable = green_toggle, command = redraw_the_image).pack()
+tk.Checkbutton(rgb_container_frame, text = "Blue", variable = blue_toggle,command = redraw_the_image ).pack()
 
 
 

@@ -35,11 +35,11 @@ def read_bmp(file_path):
     bitesPerPixelBytes = bmp_bytes[28:30]
     imageDataOffsetBytes = bmp_bytes[10:14] #where pixel data image starts 
 
-
     print(fileSizeBytes)
     print(widthBytes)
     print(heightBytes)
     print(bitesPerPixelBytes)
+
 
 
 
@@ -63,8 +63,6 @@ def read_bmp(file_path):
     print("File size: ", image_size, ", bytes width: ",image_width, ", bytes height: ",image_height, ", bytes per pixel: ", image_bytes_per_pixel )
 
 
-
-    #TODO use pixel_offset, width, height to read one full pixel row and check the first RGB values.
 
 
     #slicing pixel array to get pixel image data
