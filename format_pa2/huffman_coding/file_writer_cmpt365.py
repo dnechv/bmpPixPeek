@@ -7,6 +7,9 @@ except ModuleNotFoundError:
     import encoder
 
 
+#python3 -m format_pa2.huffman_coding.file_writer_cmpt365
+
+
 
 import struct
 

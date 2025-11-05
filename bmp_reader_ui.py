@@ -1,6 +1,13 @@
 import tkinter as tk
+
 import tkinter.filedialog
 import base64
+
+
+#PA2 imports 
+import time 
+from format_pa2.huffman_coding import encoder
+from format_pa2.huffman_coding import file_writer_cmpt365
 
 
 from tkinter import messagebox
@@ -11,6 +18,67 @@ from bmp_reader import read_bmp
 
 #holds decoded BMP pixels 
 original_pixels_rgb = None 
+
+
+def compress_to_365():
+    #get file path
+
+    file_path = file_path_entry.get()
+
+    if not file_path:
+        messagebox.showerror("Error", "Open BMP File")
+        return 
+    
+    #read the bmp bytes
+    with open(file_path, "rb") as file: 
+        bmp_bytes = file.read() 
+
+
+    #read metadata from the bmp - matrix ignored
+    _, metadata = read_bmp(file_path)
+
+    #compress and record time 
+    start_time = time.time()
+    compressed_bytes, frequency_table, padding = encoder.compress_huffman(bmp_bytes)
+    end_time = time.time()
+
+
+    #metadata of the compressed image for the header 
+    header__metadata = {
+        "algorithm_id": 1,
+        "width": metadata["width"],
+        "height": metadata["height"],
+        "bpp": metadata["bits_per_pixel"],
+        "original_bmp_size": len(bmp_bytes),
+    }
+
+
+    #create .cmpt365 file 
+    file_name = file_path + ".cmpt365"
+    file_writer_cmpt365.create_cmpt_365_file(
+        file_name,
+        compressed_bytes,
+        frequency_table,
+        padding, 
+        header__metadata,
+    )
+
+
+    #display the stats after compression 
+    messagebox.showinfo(
+        "Compressed to .cmpt365 file",
+        f"File Created :{file_name}\n"
+        f"Original File Size: {len(bmp_bytes)} bytes\n"
+        f"Compressed Size: {len(compressed_bytes)}\n"
+        f"Compression Ratio: {len(bmp_bytes)/len(compressed_bytes):.2f}\n"
+        f"Time to compress: {(end_time - start_time)*1000:.2f} ms"
+
+    
+    )
+
+
+
+
 
 
 #file validation function
@@ -179,9 +247,14 @@ tk.Label(root, text="File Path").grid(row=0, column=0)
 file_path_entry = tk.Entry(root, width=50)
 file_path_entry.grid(row=0, column=1)
 
+#buttons 
+
 tk.Button(root, text="Browse", command=browse_file).grid(row=1, column=0)
 
 tk.Button(root, text="Open BMP Image", command=open_bmp_image).grid(row=1, column=1)
+
+tk.Button(root, text="Compress to .cpmt365", command = compress_to_365).grid(row=1, column=2)
+
 
 
 #image widget
@@ -227,6 +300,10 @@ rgb_container_frame.grid(row=9, column = 0, columnspan = 2, pady=(6,0))
 tk.Checkbutton(rgb_container_frame, text = "Red", variable = red_toggle, command = redraw_the_image).pack()
 tk.Checkbutton(rgb_container_frame, text = "Green", variable = green_toggle, command = redraw_the_image).pack()
 tk.Checkbutton(rgb_container_frame, text = "Blue", variable = blue_toggle,command = redraw_the_image ).pack()
+
+
+#background image 
+
 
 
 

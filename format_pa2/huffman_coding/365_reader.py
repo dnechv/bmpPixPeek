@@ -1,6 +1,8 @@
 #contains the logic of reading the 365 file format
 import struct
 
+#python3 -m format_pa2.huffman_coding.365_reader
+
 try:
     from format_pa2.cmpt_365_header import read_header
     from format_pa2.huffman_coding import tree_builder
