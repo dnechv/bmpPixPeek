@@ -4,10 +4,14 @@ import tkinter.filedialog
 import base64
 
 
+import os 
+
+
 #PA2 imports 
 import time 
 from format_pa2.huffman_coding import encoder
 from format_pa2.huffman_coding import file_writer_cmpt365
+from format_pa2.huffman_coding import reader_365
 
 
 from tkinter import messagebox
@@ -21,9 +25,22 @@ original_pixels_rgb = None
 
 
 def compress_to_365():
-    #get file path
-
+    #get file path from entry
     file_path = file_path_entry.get()
+
+    #if no file path, open file dialog
+    if not file_path:
+        file_path = tk.filedialog.askopenfilename(
+            title="Open BMP File",
+            filetypes=[("BMP Files", "*.bmp"), ("All Files", "*.*")],
+        )
+        #if user cancels file dialog
+        if not file_path:
+            return
+
+    #update the textbox with selected file path
+    file_path_entry.delete(0, tk.END)
+    file_path_entry.insert(0, file_path)
 
     if not file_path:
         messagebox.showerror("Error", "Open BMP File")
@@ -79,6 +96,62 @@ def compress_to_365():
 
 
 
+   
+
+#decompressing 365 format
+def decompress_365():
+
+    #get .365 file path from entry 
+    file_path = file_path_entry.get().strip()
+
+    if not file_path: 
+        file_path = tk.filedialog.askopenfilename(
+            title="Open .cmpt365 File",
+            filetypes=[("CMPT365 Files", "*.cmpt365"), ("All Files", "*.*")],
+        )
+        #if user cancels file dialog
+        if not file_path:
+            return
+        
+        #update the textbox with filepath
+        file_path_entry.delete(0, tk.END)
+        file_path_entry.insert(0, file_path)
+        
+
+
+    #check for .365 FILE 
+    if not file_path:
+        messagebox.showerror("Error", "Open .365 File")
+        return
+    
+    #read .365 bytes - get header, freq table + data 
+    header_data, frequency_table, padding, compressed_data = reader_365.read_cmpt365(file_path)
+
+    #get decompressed 365 bytes
+    decompressed_bytes = reader_365.decompress_huffman(compressed_data, frequency_table, padding)
+
+    #building decompressed file with bytes 
+    file_name = file_path +".bmp"
+
+    #write decompressed image data to bmp
+    with open(file_name, "wb") as file: 
+        file.write(decompressed_bytes)
+    
+    file_path_entry.delete(0, tk.END)
+    file_path_entry.insert(0, file_name)
+    open_bmp_image()
+
+     
+    messagebox.showinfo(
+        "Decompression Complete",
+        f"File Created :{file_name}\n"
+    
+    )
+
+
+
+
+
 
 
 #file validation function
@@ -89,7 +162,7 @@ def validate_file(bmp_bytes):
     return bmp_bytes[:2] == b'BM'
 
 
-#bmp reader ui 
+#READER UI LOGIC 
 
 #opens BMP image 
 def open_bmp_image():
@@ -249,12 +322,16 @@ file_path_entry.grid(row=0, column=1)
 
 #buttons 
 
-tk.Button(root, text="Browse", command=browse_file).grid(row=1, column=0)
+button_frame = tk.Frame(root)
+button_frame.grid(row=1, column=0, columnspan=4)
 
-tk.Button(root, text="Open BMP Image", command=open_bmp_image).grid(row=1, column=1)
+tk.Button(button_frame, text="Browse", command=browse_file).grid(row=1, column=0)
 
-tk.Button(root, text="Compress to .cpmt365", command = compress_to_365).grid(row=1, column=2)
+tk.Button(button_frame, text="Open BMP Image", command=open_bmp_image).grid(row=1, column=1)
 
+tk.Button(button_frame, text="Compress to .cpmt365", command = compress_to_365).grid(row=1, column=2)
+
+tk.Button(button_frame, text="Decompress .cpmt365", command = decompress_365).grid(row=1, column=3)
 
 
 #image widget
