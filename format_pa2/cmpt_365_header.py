@@ -32,7 +32,7 @@ HEADER_FORMAT = "<8sBIIBII"
 HEADER_SIZE_STRUCT = struct.calcsize("<8sBIIBII")
 
 #testing - confrm total size 
-print("Size of header struct:", HEADER_SIZE_STRUCT)
+#print("Size of header struct:", HEADER_SIZE_STRUCT)
 
 
 
@@ -104,11 +104,8 @@ def test_bytes_packing_header():
     original_bmp_size = random.randint(0,5)
     compressed_bmp_file =random.randint(0,5)
 
-    print("Testing create_header function:",create_header(algorithm_id, width, height, bpp,original_bmp_size, compressed_bmp_file))
+    #print("Testing create_header function:",create_header(algorithm_id, width, height, bpp,original_bmp_size, compressed_bmp_file))
     
-
-
-test_bytes_packing_header()
 
 
 def test_read_header():
@@ -123,10 +120,14 @@ def test_read_header():
 
     file = io.BytesIO(header)
 
-    print("Testing reading header:", read_header(file))
+    #print("Testing reading header:", read_header(file))
 
 
-test_read_header()
+
+
+
+
+
 
 
 

@@ -61,6 +61,5 @@ def test_file_writer():
                    }
     create_cmpt_365_file("testing_file_creation", commpressed_data, frequency_table, padding, header_data)
     print("testing cmpt365 file creation")
-
-
-test_file_writer()
+    
+#test_file_writer()

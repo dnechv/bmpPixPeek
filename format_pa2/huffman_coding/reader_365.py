@@ -93,5 +93,4 @@ def test_huffman_reader():
     decoded = decompress_huffman(comp, freq, pad)
     print(decoded)
 
-
-test_huffman_reader()
+#test_huffman_reader()

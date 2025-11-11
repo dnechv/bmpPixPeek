@@ -21,7 +21,7 @@ def encode_to_bits(data: bytes, h_codes: dict[int, str]) -> str:
     return "".join(data_bits)
 
 
-#takes bitstring and converts it to bytes 
+#takes huffman bitstring and converts it to bytes for .cmpt365
 def convert_to_bytes(bitstring: str)-> tuple[bytes, int]:
    
     #calcualte required padding
@@ -73,4 +73,4 @@ def test_encoder():
     print("compressed size:", len(compressed_data), "bytes")
 
 
-test_encoder()
+#test_encoder()

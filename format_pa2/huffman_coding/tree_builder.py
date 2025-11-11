@@ -120,7 +120,7 @@ def test_tree_creation():
     print("Huffamn Codes", traverse_tree_build_coding(sample_tree))
 
 
-test_tree_creation()
+#test_tree_creation()
 
 
 
